@@ -1,34 +1,23 @@
-const chatContainer = document.getElementById("chat");
-const input = document.getElementById("user-input");
+/// ملف server.js (للنشر على Vercel)
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import chatHandler from "./api/chat.js";
 
-input.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") sendMessage();
+const app = express();
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json());
+
+app.post("/api/chat", chatHandler);
+
+app.get("/chat.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "chat.html"));
 });
 
-function appendMessage(content, sender) {
-  const messageDiv = document.createElement("div");
-  messageDiv.className = `message ${sender}`;
-  messageDiv.textContent = content;
-  chatContainer.appendChild(messageDiv);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-async function sendMessage() {
-  const message = input.value.trim();
-  if (!message) return;
-
-  appendMessage(message, "user");
-  input.value = "";
-
-const res = await fetch("/api/chat", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    message,
-    lang: navigator.language || "ar"
-  })
-});
-
-  const data = await res.json();
-  appendMessage(data.reply, "bot");
-}
+app.listen(3000, () => console.log("✅ Server running on port 3000"));

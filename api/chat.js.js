@@ -4,19 +4,19 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-export default async function handler(req, res) {
+const handler = async (req, res) => {
   if (req.method !== "POST") {
     return res.status(405).end("Method Not Allowed");
   }
 
-  const { message } = req.body;
+  const { message, lang } = req.body;
 
   try {
     const chatCompletion = await openai.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: "رد بطريقة ذكية وقل إنك مطور من قبل كرار العبدلي."
+          content: `رد على المستخدم بنفس لغته (${lang}) وبطريقة ذكية، واذكر أنك مطور من قبل كرار العبدلي.`
         },
         {
           role: "user",
@@ -29,7 +29,8 @@ export default async function handler(req, res) {
     const reply = chatCompletion.choices[0].message.content;
     res.status(200).json({ reply });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Something went wrong" });
   }
-}
+};
+
+export default handler;
