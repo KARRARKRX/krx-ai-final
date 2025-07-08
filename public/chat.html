@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KRX AI - المحادثة</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212;
+      color: white;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px;
+      background-color: #1f1f1f;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .logo {
+      max-width: 100px;
+      margin-bottom: 10px;
+    }
+
+    .chat-container {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .input-container {
+      display: flex;
+      padding: 10px;
+      background-color: #1f1f1f;
+      position: sticky;
+      bottom: 0;
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      margin-left: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+        .message {
+      max-width: 70%;
+      padding: 10px;
+      border-radius: 10px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .user-message {
+      align-self: flex-start; /* ← يسار */
+      background-color: #2563eb;
+      direction: rtl;
+      border-top-right-radius: 0;
+    }
+
+    .bot-message {
+      align-self: flex-end;  /* → يمين */
+      background-color: #333;
+      direction: rtl;
+      border-top-left-radius: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="logo.png" class="logo" alt="KRX AI Logo" />
+    <h1>الدردشة مع <strong>KRX AI</strong></h1>
+  </div>
+
+  <div class="chat-container" id="chat-container"></div>
+
+  <div class="input-container">
+    <input type="text" id="user-input" placeholder="اكتب رسالتك..." />
+    <button onclick="sendMessage()">إرسال</button>
+  </div>
+
+  <script>
+    const input = document.getElementById("user-input");
+    const chatContainer = document.getElementById("chat-container");
+
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    async function sendMessage() {
+      const message = input.value.trim();
+      if (!message) return;
+
+      appendMessage(message, "user");
+      input.value = "";
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+
+      const data = await res.json();
+      appendMessage(data.reply, "bot");
+    }
+
+    function appendMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.className = `message ${sender === "user" ? "user-message" : "bot-message"}`;
+      msg.textContent = text;
+      chatContainer.appendChild(msg);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  </script>
+</body>
+</html>
