@@ -20,11 +20,14 @@ async function sendMessage() {
   appendMessage(message, "user");
   input.value = "";
 
-  const res = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message })
-  });
+const res = await fetch("/api/chat", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    message,
+    lang: navigator.language || "ar"
+  })
+});
 
   const data = await res.json();
   appendMessage(data.reply, "bot");
